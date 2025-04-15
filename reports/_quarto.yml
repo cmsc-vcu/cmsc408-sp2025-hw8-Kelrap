@@ -5,14 +5,14 @@ author:
 
 date: last-modified
 
+theme: darkly
+
 format:
     html:
-        theme: cosmo
         toc: true
         embed-resources: true
         code-copy: true
 
-theme: darkly
 
 execute:
   echo: true

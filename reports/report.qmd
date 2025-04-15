@@ -91,7 +91,12 @@ List all non-countries.
 ## (skills: select, where)
 
 run_sql_and_return_html(cnx,"""
-select todo
+select
+  *
+from 
+  world_bank_data.wdi_country
+where
+  region is null
 """)
 ```
 
@@ -116,14 +121,25 @@ drop table if exists wdi_country;
 ```{python}
 # create table
 execute_ddl(cnx,"""
-select todo
+create table 
+  wdi_country 
+as
+  select
+    *
+  from 
+    world_bank_data.wdi_country
+  where
+    region is not null
 """)
 ```
 
 ```{python}
 # show number of records
 run_sql_and_return_html(cnx,"""
-select todo
+select
+  count(*)
+from 
+  world_bank_data.wdi_country 
 """)
 ```
 
@@ -135,7 +151,10 @@ According to the World Bank, in 2020 there were how many countries in the world?
 ## (skills: select, aggregate)
 
 run_sql_and_return_html(cnx,"""
-select todo
+select
+  count(region)
+from 
+  world_bank_data.wdi_country 
 """)
 
 ```
