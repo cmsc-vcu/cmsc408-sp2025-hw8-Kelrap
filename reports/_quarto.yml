@@ -1,7 +1,7 @@
 
 author:
-    - name: Skippy McBoatface
-      email: skippy@mcboatface.com
+    - name: Kel Raphael
+      email: raphaelke@vcu.edu
 
 date: last-modified
 
@@ -11,6 +11,8 @@ format:
         toc: true
         embed-resources: true
         code-copy: true
+
+theme: darkly
 
 execute:
   echo: true
