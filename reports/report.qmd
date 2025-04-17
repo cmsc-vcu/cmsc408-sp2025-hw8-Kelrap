@@ -83,6 +83,8 @@ limit 5
 
 List all non-countries.
 
+todo: turn run_sql_and_return_df to html
+
 ```{python}
 ## task 3
 ## Which records are NOT for countries, that is they're for regions or groups of countries.
@@ -90,13 +92,13 @@ List all non-countries.
 ## Once you figure it out, write a query to list all the non-countries
 ## (skills: select, where)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select
   *
 from 
   world_bank_data.wdi_country
 where
-  country_region is null
+  region is null
 """)
 ```
 
@@ -124,22 +126,23 @@ execute_ddl(cnx,"""
 create table 
   wdi_country 
 as
-  select
+  (select
     *
   from 
     world_bank_data.wdi_country
   where
-    country_region is not null
+    region is not null)
 """)
 ```
 
+todo how delete/recreate table where i have permissions?
 ```{python}
 # show number of records
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select
-  count(*)
+  count(*) 
 from 
-  wdi_country 
+  wdi_country
 """)
 ```
 
@@ -150,11 +153,11 @@ According to the World Bank, in 2020 there were how many countries in the world?
 ```{python}
 ## (skills: select, aggregate)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select
-  count(country_region)
+  count(region)
 from 
-  world_bank_data.wdi_country 
+  wdi_country 
 """)
 
 ```
@@ -170,13 +173,15 @@ What are all unique values of region in the wdi_country table?
 ## (there are several possible ways to code this in SQL)
 ## (skills: select, aggregate, order by)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select 
-  country_region
+  region
 from
-  world_bank_data.wdi_country 
+  wdi_country 
 group by
-  country_region
+  region
+having
+  region is not null
 """)
 
 ```
@@ -189,13 +194,15 @@ How many countries are in each region?
 ## How many countries are in each region?
 ## (skills: select, aggregate, group by, order by)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select 
-  country_region, count(country_code)
+  region, count(*)
 from
-  world_bank_data.wdi_country 
+  wdi_country 
 group by
-  country_region
+  region
+having
+  region is not null
 """)
 
 ```
@@ -208,13 +215,13 @@ List the country full names and regions for all countries in north america.
 ## List the country full names and regions for all countries in north america
 ## (skills: select, where, order by)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select 
-  country_long_name, country_region
+  `Long Name`, region
 from
-  world_bank_data.wdi_country 
+  wdi_country 
 where
-  country_region = "North America"
+  region = "North America"
 """)
 
 ```
@@ -226,13 +233,13 @@ where
 ## What region contains Qatar?  List the region, country short name and full name
 ## (skills: select, where)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select 
-  country_region, country_short_name, country_long_name
+  region, `Short Name`, `Long Name`
 from 
-  world_bank_data.wdi_country 
+  wdi_country 
 where
-  table_name = "Qatar"
+  `Table Name` = "Qatar"
 """)
 
 ```
@@ -245,13 +252,13 @@ where
 ## where the abbr and wb_abbr are different.
 ## (skills: select, where, order by)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select 
-  country_code, country_short_name, abbr, wb_abbr, country_region
+  `Country Code`, `Short Name`, `2-alpha code`, `WB-2 code`, region
 from 
-  world_bank_data.wdi_country 
+  wdi_country 
 where
-  abbr != wb_abbr
+  `2-alpha code` != `WB-2 code`
 """)
 
 ```
@@ -264,15 +271,17 @@ where
 ## income category in descending order of most countries to least.
 ## (skills: select, aggregate, group by, order by)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select 
-  country_income_category, count(country_code)
+  `Income Group`, count(`Country Code`) as "Number of Countries"
 from 
-  world_bank_data.wdi_country 
+  wdi_country 
+where
+  region is not null
 group by
-  country_income_category
-sort by
-  count(country_code)
+  `Income Group`
+order by
+  count(`Country Code`)
   desc
 """)
 
@@ -287,13 +296,21 @@ sort by
 ## you will be scored on the number of records returned and the value(s) 
 ## in the first column.
 
-run_sql_and_return_html(cnx,"""
-# select todo
+run_sql_and_return_df(cnx,"""
+select
+  `Short Name`
+from
+  wdi_country 
+where
+  `Income Group` is null and
+  region is not null
 """)
 
 ```
 
 ## Task 13
+
+todo: check this works
 
 ```{python}
 ## OK, this HAS to be an error. Let's make a assumption that the country 
@@ -302,7 +319,12 @@ run_sql_and_return_html(cnx,"""
 ## NOTE - if you get this wrong, all subsequent tables will be wrong!
 
 execute_ddl(cnx,"""
-# update todo
+update
+  wdi_country 
+set
+  `Income Group` = "High income"
+where
+  `Short Name` = "Venezuela"
 """)
 
 
@@ -310,8 +332,13 @@ execute_ddl(cnx,"""
 ```{python}
 ## Now, display the country again to verify the change stuck!
 
-run_sql_and_return_html(cnx,"""
-# select todo
+run_sql_and_return_df(cnx,"""
+select
+  `Short Name`, `Income Group`
+from
+  wdi_country 
+where
+  `Short Name` = "Venezuela"
 """)
 
 ```
@@ -324,18 +351,20 @@ run_sql_and_return_html(cnx,"""
 ## region, income group, and no.of.countries.
 ## (skills: select, aggregate, group by, order by)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select 
-  region, country_income_group, count(country_code)
+  region, `Income Group`, count(`Country Code`) as "no.of.countries"
 from 
-  world_bank_data.wdi_country 
+  wdi_country 
 group by
-  country_region, country_income_group
+  region, `Income Group`
 """)
 
 ```
 
 ## Task 15
+
+todo: check that all following blocks work on windows
 
 ```{python}
 ## Examine the result from task 14. It would be really cool to
@@ -389,9 +418,9 @@ run_sql_and_return_html(cnx,"""
 
 run_sql_and_return_html(cnx,"""
 select 
-  country_code, country_short_name, country_region, country_income_category
+  country_code, country_short_name, region, country_income_category
 from 
-  world_bank_data.wdi_country 
+  wdi_country 
 order by 
   country_short_name
 """)
