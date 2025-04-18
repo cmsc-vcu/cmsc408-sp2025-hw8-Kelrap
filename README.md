@@ -2,41 +2,13 @@
 
 Homework 8 - World Bank Indicator Analysis
 
-(this is a scaffold.  Please clean it up.)
+## The goal
 
-(Remember, someday you'll look back at this repo and wonder what you were thinking!
-Now is your chance to remind your future self what you were thinking!)
+You've been hired by the World Bank. They've got a lot of data to analyze - that's where you come in.
 
+At first you'll access information from world_bank_data.wdi_country. But that has its limitations, as do your permissions. Upload a .env file with the credentials for your own database, and then you can copy - and filter - information to get your own table of countries.
 
+Using SQL, you'll have to write some queries that will automatically process allll that data. Use joins, subqueries, and order bys to categorize and find any important statistics. 
 
-`Country Code`
-`Short Name`
-`Table Name`
-`Long Name`
-`2-alpha code`
-`Currency Unit`
-`Special Notes`
-region
-`Income Group`
-`WB-2 code`
-`National accounts base year`
-`National accounts reference year`
-`SNA price valuation`
-`Lending category`
-`Other groups`
-`System of National Accounts`
-`Alternative conversion factor`
-`PPP survey year`
-`Balance of Payments Manual in use`
-`External debt Reporting status`
-`System of trade`
-`Government Accounting concept`
-`IMF data dissemination standard`
-`Latest population census`
-`Latest household survey`
-`Source of most recent Income and expenditure data`
-`Vital registration complete`
-`Latest agricultural census`
-`Latest industrial data`
-`Latest trade data`
-`Latest water withdrawal data`
+Remember to double check your code output!
+

@@ -180,8 +180,6 @@ from
   wdi_country 
 group by
   region
-having
-  region is not null
 """)
 
 ```
@@ -201,8 +199,6 @@ from
   wdi_country 
 group by
   region
-having
-  region is not null
 """)
 
 ```
@@ -276,8 +272,6 @@ select
   `Income Group`, count(`Country Code`) as "Number of Countries"
 from 
   wdi_country 
-where
-  region is not null
 group by
   `Income Group`
 order by
@@ -302,8 +296,7 @@ select
 from
   wdi_country 
 where
-  `Income Group` is null and
-  region is not null
+  `Income Group` is null 
 """)
 
 ```
@@ -333,12 +326,15 @@ where
 ## Now, display the country again to verify the change stuck!
 
 run_sql_and_return_df(cnx,"""
-select
-  `Short Name`, `Income Group`
-from
+select 
+  `Income Group`, count(`Country Code`) as "Number of Countries"
+from 
   wdi_country 
-where
-  `Short Name` = "Venezuela"
+group by
+  `Income Group`
+order by
+  count(`Country Code`)
+  desc
 """)
 
 ```
@@ -380,7 +376,37 @@ todo: check that all following blocks work on windows
 ## (skills: select, aggregate, group by, nested query)
 
 run_sql_and_return_html(cnx,"""
-# select todo
+with "High" as (
+  select count(`Country Code`)
+  from wdi_country
+  where `Income Group` = "High income"
+)
+with "Upper middle" as (
+  select count(`Country Code`)
+  from wdi_country
+  where `Income Group` = "Upper middle income"
+)
+with "Lower middle" as (
+  select count(`Country Code`)
+  from wdi_country
+  where `Income Group` = "Lower middle income"
+)
+with "Low" as (
+  select count(`Country Code`)
+  from wdi_country
+  where `Income Group` = "Low income"
+)
+with "None" as (
+  select count(`Country Code`)
+  from wdi_country
+  where `Income Group` is null
+)
+select 
+  region, High, "Upper middle", "Lower middle", "Low", "None"
+from 
+  wdi_country 
+group by 
+  region
 """)
 
 ```
@@ -400,7 +426,19 @@ run_sql_and_return_html(cnx,"""
 ## (skills: select, aggregate, group by, nested query, order by, limit)
 
 run_sql_and_return_html(cnx,"""
-# select todo
+with "Low" as (
+  select count(`Country Code`)
+  from wdi_country
+  where `Income Group` = "Low income"
+)
+select 
+  "Low", region, `Income Group`
+from 
+  wdi_country 
+group by 
+  region
+having
+  min("Low")
 """)
 
 ```
@@ -417,12 +455,23 @@ run_sql_and_return_html(cnx,"""
 ## (skills: select, where, subquery)
 
 run_sql_and_return_html(cnx,"""
+with marshall as (
+  select
+    region, `Income Group`
+  from 
+    wdi_country
+  where
+    `Country Code` = "MHL"
+)
 select 
-  country_code, country_short_name, region, country_income_category
+  `Country Code`, `Short Name`, region, `Income Group`
 from 
   wdi_country 
+where
+  region = marshall.region and
+  `Income Group` = marshall.`Income Group`
 order by 
-  country_short_name
+  `Short Name`
 """)
 
 ```
@@ -447,7 +496,31 @@ order by
 ## (skills: select, where, subqueries, joins)
 
 run_sql_and_return_html(cnx,"""
-# select todo
+with all_regions as (
+  select
+    region
+  from 
+    wdi_country
+  group by
+    region
+)
+with all_incomes as (
+  select
+    `Income Group`
+  from 
+    wdi_country
+  group by
+    `Income Group`
+)
+with combos as (
+  select region, `Income Group`
+  from wdi_country
+  group by region, `Income Group`
+)
+select *
+from all_regions
+cross join all_incomes
+where region, `Income Group` not in combos
 """)
 
 ```
@@ -471,7 +544,40 @@ run_sql_and_return_html(cnx,"""
 ## (skills: select, where, subqueries, joins, aggregate functions)
 
 run_sql_and_return_html(cnx,"""
-# select todo
+with region_sum as (
+select
+  region, count(`Country Code`) as "Region sum"
+from
+  wdi_country
+group by 
+  region
+)
+with income_sum as (
+select
+  `Income group`, count(`Country Code`) as "Income sum"
+from
+  wdi_country
+group by 
+  `Income group`
+)
+with total_sum as (
+select
+  count(*) as "Total sum"
+from
+  wdi_country
+)
+select 
+  region, `Income Group`, count(`Country Code`) as "Country count", 
+  region_sum.`Region sum`, 
+  income_sum.`Income sum`, 
+  total_sum.`Total sum`, 
+  (count(`Country Code`) * 100.0 / total_sum + "%") as "Percentage"
+from 
+  wdi_country 
+  left join region_sum on (region_sum.region = wdi_country.region)
+  left join income_sum on (income_sum.`Income group` = wdi_country.`Income group`)
+group by
+  region, `Income Group`
 """)
 
 
@@ -485,7 +591,46 @@ run_sql_and_return_html(cnx,"""
 ## columns, Region in the rows and Percent of total in each cell of the table.
 
 run_sql_and_return_html(cnx,"""
-# select todo
+with total_sum as (
+select
+  count(*) as value
+from
+  wdi_country
+)
+with section_percentage as (
+select 
+  region, `Income Group`, (count(`Country Code`) * 100.0 / total_sum + "%") as "Percentage"
+from
+  wdi_country
+group by
+  region, `Income Group`
+)
+select 
+  region, 
+  ( select value
+    from section_percentage
+    where section_percentage.region = wdi_country.region and
+      section_percentage.`Income Group` = "High income"
+      ) as "High income", 
+  ( select value
+    from section_percentage
+    where section_percentage.region = wdi_country.region and
+      section_percentage.`Income Group` = "Upper middle income"
+      ) as "Upper middle income", 
+  ( select value
+    from section_percentage
+    where section_percentage.region = wdi_country.region and
+      section_percentage.`Income Group` = "Lower middle income"
+      ) as "Lower middle income", 
+  ( select value
+    from section_percentage
+    where section_percentage.region = wdi_country.region and
+      section_percentage.`Income Group` = "Low income"
+      ) as "Low income", 
+from
+  wdi_country
+group by
+  region
 """)
 
 ```
@@ -500,7 +645,20 @@ run_sql_and_return_html(cnx,"""
 ## (This is much simpler than task 20!)
 
 run_sql_and_return_html(cnx,"""
-# select todo
+with total_sum as (
+select
+  count(*) as value
+from
+  wdi_country
+)
+select
+  count(`Country code`) as "Number"
+  total_sum.value as "Total"
+  (count(`Country Code`) * 100.0 / total_sum.value + "%") as "Percentage"
+from
+  wdi_country
+group by
+  `Income group`
 """)
 
 ```
@@ -510,20 +668,18 @@ run_sql_and_return_html(cnx,"""
 
 1. Reflect on the SQL skills you used throughout these exercises. Which skills do you feel most confident in, and which do you think need more practice? How has this assignment helped you build or reinforce specific SQL competencies?
 
-todo
+I'm confident with basic SQL tools and simple queries. The more complex queries were difficult to conceptualize with my current SQL familiarity. Forcing myself to conceptualize them anyway has helped me understand how to use the tools I have available, and their limitations.
 
 2. Problem-Solving Approach: Describe your approach to tackling the more complex tasks (like Tasks 18, 23, and 24). How did you break down these problems, and what steps did you take when you encountered challenges? How would you approach a similar problem differently in the future?
 
-todo
+I tackled the obvious logical shapes first, then thought about the missing pieces. Sometimes I misunderstood how code would act in the given situation. Whenever I did run into a roadblock, I isolated the problem code, and looked for more functional alternatives.
 
 3. Learning Takeaways: Consider the overall learning experience from this assignment. What were the biggest takeaways about working with SQL for data analysis and transformation? How do you think these skills will apply in real-world scenarios or future coursework?
 
-todo
+'with' is very helpful, and I enjoy being able to use that to simplify my code. The 2d requirements of problem 15 seemed simple in output, but made me realize just how difficult queries can be to write. I imagine real-life scenarios have even more potential for discrepancies between output and code complexity. 
 
 
 # README
-
-todo
 
 ::: {style="background:rgb(4, 59, 23) ; margin-left:20px; border-top: 3px solid black; border-bottom: 3px solid black; padding-left:20px; padding-right:20px; border-style:double; border-width:4px; border-color:darkgray;"}
 {{< include ../README.md >}}
