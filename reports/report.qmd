@@ -137,7 +137,7 @@ as
 # show number of records
 run_sql_and_return_html(cnx,"""
 select
-  *
+  count(*)
 from 
   wdi_country
 """)
@@ -172,7 +172,7 @@ What are all unique values of region in the wdi_country table?
 
 run_sql_and_return_html(cnx,"""
 select 
-  region as country_region
+  region
 from
   wdi_country 
 group by
@@ -191,7 +191,7 @@ How many countries are in each region?
 
 run_sql_and_return_html(cnx,"""
 select 
-  region, count(*) as "Number of countries"
+  region, count(`Country Code`) as "Country Count"
 from
   wdi_country 
 group by
@@ -289,7 +289,7 @@ todo: replace run_sql_and_return_df with run_sql_and_return_html
 ## you will be scored on the number of records returned and the value(s) 
 ## in the first column.
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select
   `Short Name`, `Country Code`, `Income Group`
 from
@@ -322,7 +322,7 @@ commit;
 ```{python}
 ## Now, display the country again to verify the change stuck!
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select
   `Short Name`, `Country Code`, `Income Group`
 from
@@ -343,7 +343,7 @@ where
 
 run_sql_and_return_html(cnx,"""
 select 
-  region, `Income Group`, count(`Country Code`) as "no.of.countries"
+  region, `Income Group`, count(`Country Code`) as "Country Count"
 from 
   wdi_country 
 group by
