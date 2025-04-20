@@ -7,7 +7,6 @@ GITHUB URL:  <https://github.com/cmsc-vcu/cmsc408-sp2025-hw8-Kelrap>
 
 # Problem Background
 
-
 ```{python}
 from helpers import create_database_engine, run_sql_and_return_df, run_sql_and_return_html, create_db_wrapper, execute_ddl_from_file, execute_ddl
 
@@ -291,7 +290,7 @@ todo: replace run_sql_and_return_df with run_sql_and_return_html
 
 run_sql_and_return_df(cnx,"""
 select
-  `Short Name`, `Country Code`, `Income Group`
+  `Short Name`
 from
   wdi_country 
 where
@@ -314,7 +313,7 @@ update
 SET 
   `Income Group` = "High income"
 WHERE 
-  `Country Code` = "VEN";
+  `Short Name` = "Venezuela";
 commit;
 """)
 
@@ -324,7 +323,7 @@ commit;
 
 run_sql_and_return_df(cnx,"""
 select
-  `Short Name`, `Country Code`, `Income Group`
+  `Short Name`
 from
   wdi_country 
 where
@@ -367,7 +366,7 @@ group by
 ## and a column for the row totals.
 ## (skills: select, aggregate, group by, nested query)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 with base as (
   select 
     region
