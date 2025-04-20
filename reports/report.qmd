@@ -279,8 +279,6 @@ order by
 
 ## Task 12
 
-todo: replace run_sql_and_return_df with run_sql_and_return_html
-
 ```{python}
 ## Mystery task.  Looking at the table from Task 11 (anything odd?) write the
 ## next obvious query based on the results in the table.
@@ -288,7 +286,7 @@ todo: replace run_sql_and_return_df with run_sql_and_return_html
 ## you will be scored on the number of records returned and the value(s) 
 ## in the first column.
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 select
   `Short Name`
 from
@@ -321,7 +319,7 @@ commit;
 ```{python}
 ## Now, display the country again to verify the change stuck!
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 select
   `Short Name`
 from
@@ -366,7 +364,7 @@ group by
 ## and a column for the row totals.
 ## (skills: select, aggregate, group by, nested query)
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 with base as (
   select 
     region
