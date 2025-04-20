@@ -92,7 +92,7 @@ List all non-countries.
 
 run_sql_and_return_html(cnx,"""
 select
-  *
+  `Short Name`
 from 
   world_bank_data.wdi_country
 where
@@ -135,9 +135,9 @@ as
 
 ```{python}
 # show number of records
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select
-  count(*) 
+  count(*) as "Number of countries"
 from 
   wdi_country
 """)
@@ -170,7 +170,7 @@ What are all unique values of region in the wdi_country table?
 ## (there are several possible ways to code this in SQL)
 ## (skills: select, aggregate, order by)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select 
   region
 from
@@ -280,6 +280,8 @@ order by
 
 ## Task 12
 
+todo: replace run_sql_and_return_df with run_sql_and_return_html
+
 ```{python}
 ## Mystery task.  Looking at the table from Task 11 (anything odd?) write the
 ## next obvious query based on the results in the table.
@@ -287,9 +289,9 @@ order by
 ## you will be scored on the number of records returned and the value(s) 
 ## in the first column.
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select
-  `Short Name`
+  `Short Name`, `Country Code`, `Income Group`
 from
   wdi_country 
 where
@@ -320,16 +322,13 @@ commit;
 ```{python}
 ## Now, display the country again to verify the change stuck!
 
-run_sql_and_return_html(cnx,"""
-select 
-  `Income Group`, count(`Country Code`) as "Number of Countries"
-from 
+run_sql_and_return_df(cnx,"""
+select
+  `Short Name`, `Country Code`, `Income Group`
+from
   wdi_country 
-group by
-  `Income Group`
-order by
-  count(`Country Code`)
-  desc
+where
+  `Income Group` is null 
 """)
 
 ```
@@ -342,7 +341,7 @@ order by
 ## region, income group, and no.of.countries.
 ## (skills: select, aggregate, group by, order by)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select 
   region, `Income Group`, count(`Country Code`) as "no.of.countries"
 from 
@@ -368,7 +367,7 @@ group by
 ## and a column for the row totals.
 ## (skills: select, aggregate, group by, nested query)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 with base as (
   select 
     region
