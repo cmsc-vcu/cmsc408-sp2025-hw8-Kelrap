@@ -135,7 +135,7 @@ as
 
 ```{python}
 # show number of records
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 select
   *
 from 
@@ -170,7 +170,7 @@ What are all unique values of region in the wdi_country table?
 ## (there are several possible ways to code this in SQL)
 ## (skills: select, aggregate, order by)
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 select 
   region as country_region
 from
@@ -189,7 +189,7 @@ How many countries are in each region?
 ## How many countries are in each region?
 ## (skills: select, aggregate, group by, order by)
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 select 
   region, count(*) as "Number of countries"
 from
@@ -289,7 +289,7 @@ todo: replace run_sql_and_return_df with run_sql_and_return_html
 ## you will be scored on the number of records returned and the value(s) 
 ## in the first column.
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 select
   `Short Name`, `Country Code`, `Income Group`
 from
@@ -322,7 +322,7 @@ commit;
 ```{python}
 ## Now, display the country again to verify the change stuck!
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 select
   `Short Name`, `Country Code`, `Income Group`
 from
@@ -341,7 +341,7 @@ where
 ## region, income group, and no.of.countries.
 ## (skills: select, aggregate, group by, order by)
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 select 
   region, `Income Group`, count(`Country Code`) as "no.of.countries"
 from 
@@ -367,7 +367,7 @@ group by
 ## and a column for the row totals.
 ## (skills: select, aggregate, group by, nested query)
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 with base as (
   select 
     region
@@ -518,7 +518,7 @@ order by
 ## in Task 14.  (FYI - I get 6 rows in my final table.)
 ## (skills: select, where, subqueries, joins)
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 with all_regions as (
   select
     region
@@ -570,7 +570,7 @@ where
 ## slam dunk after this!
 ## (skills: select, where, subqueries, joins, aggregate functions)
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 with base as (
   select region,
     `Income Group`,
@@ -621,7 +621,7 @@ from base
 ## print table similar to the table in Task 15, with Income group in the
 ## columns, Region in the rows and Percent of total in each cell of the table.
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 WITH base AS (
   SELECT region
   FROM wdi_country
@@ -730,7 +730,7 @@ FROM base
 
 ## (This is much simpler than task 20!)
 
-run_sql_and_return_df(cnx,"""
+run_sql_and_return_html(cnx,"""
 SELECT wdi_country.`Income Group`,
   COUNT(`Country Code`) AS "Country count",
   (
