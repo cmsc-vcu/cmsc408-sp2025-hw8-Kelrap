@@ -137,7 +137,7 @@ as
 # show number of records
 run_sql_and_return_df(cnx,"""
 select
-  count(*) as "Number of countries"
+  *
 from 
   wdi_country
 """)
@@ -172,7 +172,7 @@ What are all unique values of region in the wdi_country table?
 
 run_sql_and_return_df(cnx,"""
 select 
-  region
+  region as country_region
 from
   wdi_country 
 group by
@@ -189,9 +189,9 @@ How many countries are in each region?
 ## How many countries are in each region?
 ## (skills: select, aggregate, group by, order by)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 select 
-  region, count(*)
+  region, count(*) as "Number of countries"
 from
   wdi_country 
 group by
@@ -518,7 +518,7 @@ order by
 ## in Task 14.  (FYI - I get 6 rows in my final table.)
 ## (skills: select, where, subqueries, joins)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 with all_regions as (
   select
     region
@@ -536,7 +536,7 @@ all_incomes as (
     `Income Group`
 )
 select 
-  *
+  all_regions.region, all_incomes.`Income Group`, 0 as "Number of countries"
 from 
   all_regions
   cross join all_incomes
@@ -570,7 +570,7 @@ where
 ## slam dunk after this!
 ## (skills: select, where, subqueries, joins, aggregate functions)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 with base as (
   select region,
     `Income Group`,
@@ -601,10 +601,10 @@ select base.region,
   base.`Country Count`,
   region_sum.value as "Region sum",
   income_sum.value as "Income sum",
-  total_sum.value as "Total sum",
-  (
+  round(total_sum.value, 0) as "Total sum",
+  round((
     base.`Country Count` * 100.0 / total_sum.value + "%%"
-  ) as "Percentage"
+  ), 1) as "Percentage"
 from base
   left join region_sum on base.region = region_sum.region
   left join income_sum on base.`Income Group` = income_sum.`Income Group`
@@ -621,7 +621,7 @@ from base
 ## print table similar to the table in Task 15, with Income group in the
 ## columns, Region in the rows and Percent of total in each cell of the table.
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 WITH base AS (
   SELECT region
   FROM wdi_country
@@ -707,7 +707,11 @@ SELECT base.region,
   CASE
     WHEN low.value IS NULL THEN "0%%"
     ELSE low.value
-  END AS "Low income"
+  END AS "Low income",
+  (
+    SELECT COUNT(`Country Code`)
+    FROM wdi_country
+  ) as "Total sum"
 FROM base
   LEFT JOIN high ON base.region = high.region
   LEFT JOIN up_mid ON base.region = up_mid.region
@@ -726,7 +730,7 @@ FROM base
 
 ## (This is much simpler than task 20!)
 
-run_sql_and_return_html(cnx,"""
+run_sql_and_return_df(cnx,"""
 SELECT wdi_country.`Income Group`,
   COUNT(`Country Code`) AS "Country count",
   (
@@ -734,10 +738,10 @@ SELECT wdi_country.`Income Group`,
     FROM wdi_country
   ) AS "Total countries",
   concat(
-    COUNT(`Country Code`) * 100.0 / (
+    round(COUNT(`Country Code`) * 100.0 / (
       SELECT COUNT(`Country Code`)
       FROM wdi_country
-    ),
+    ), 1),
     "%%"
   ) AS "Percentage"
 FROM wdi_country
